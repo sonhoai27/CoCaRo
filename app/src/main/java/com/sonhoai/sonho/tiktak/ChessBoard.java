@@ -118,6 +118,7 @@ public class ChessBoard {
         return true;
     }
 
+    //ktra coi có hết game chưa
     public boolean isGameOver(){
         if (checkWin(0) || checkWin(1)) return true;
 
@@ -128,18 +129,21 @@ public class ChessBoard {
             }
         }
         if (count == 0){
-            return true;
+            return true;//trò chơi kết thúc
         }
+        //chưa thắng hoặc còn vị trí để đi=>game chưa kết thúc
         return false;
     }
     private boolean checkWin(int i) {
         return true;
     }
+    //duyệt qua từng bước đi, để có một bàn cờ mới
     public List<Move> getMove() {
+        //tạo mới 1 danh sách, duyệt qua từng vị trí, nếu -1 còn vị trí đi
         List<Move> moves = new ArrayList<>();
         for (int i = 0; i < rowQty; i++) {
             for (int j = 0; i < colQty; j++) {
-                if (board[i][j] == -1) moves.add(new Move(i, j));
+                if (board[i][j] == -1) moves.add(new Move(i, j));//có thể đi dc
             }
         }
         return moves;
@@ -147,7 +151,7 @@ public class ChessBoard {
 
     public void makeMove(Move move) {
         board[move.getRowIndex()][move.getColIndex()] = player;
-        player = (player + 1) % 2;
+        player = (player + 1) % 2;//hoan đổi người chơi, 1 qua 0, hoặc 0 qua 1
 
     }
 
@@ -157,9 +161,6 @@ public class ChessBoard {
         if (checkWin((player + 1) % 2))
             return -1;
         return 0;
-    }
-    public void currentPlayer(){
-
     }
     //    public Bitmap createBitmap(){
 //        Bitmap bitmap = Bitmap.createBitmap(line.getBitmapWidth(), line.getBitmapHeight(),Bitmap.Config.ARGB_8888);
