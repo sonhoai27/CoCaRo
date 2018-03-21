@@ -118,6 +118,49 @@ public class ChessBoard {
         return true;
     }
 
+    public boolean isGameOver(){
+        if (checkWin(0) || checkWin(1)) return true;
+
+        int count = 0;
+        for (int i = 0; i < rowQty; i++) {
+            for (int j = 0; i < colQty; j++) {
+                if (board[i][j] == -1) count++;
+            }
+        }
+        if (count == 0){
+            return true;
+        }
+        return false;
+    }
+    private boolean checkWin(int i) {
+        return true;
+    }
+    public List<Move> getMove() {
+        List<Move> moves = new ArrayList<>();
+        for (int i = 0; i < rowQty; i++) {
+            for (int j = 0; i < colQty; j++) {
+                if (board[i][j] == -1) moves.add(new Move(i, j));
+            }
+        }
+        return moves;
+    }
+
+    public void makeMove(Move move) {
+        board[move.getRowIndex()][move.getColIndex()] = player;
+        player = (player + 1) % 2;
+
+    }
+
+    public int evaluate(int player) {
+        if (checkWin(player))
+            return 1;
+        if (checkWin((player + 1) % 2))
+            return -1;
+        return 0;
+    }
+    public void currentPlayer(){
+
+    }
     //    public Bitmap createBitmap(){
 //        Bitmap bitmap = Bitmap.createBitmap(line.getBitmapWidth(), line.getBitmapHeight(),Bitmap.Config.ARGB_8888);
 //        //đại diện cho chế độ màu(8888, 4444, 565) thuộc class BitmapConfig
@@ -136,4 +179,53 @@ public class ChessBoard {
 //        return bitmap;
 //    }
 //bitmap dai dien cho một bức ảnh
+
+
+    public int getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(int player) {
+        this.player = player;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public int getBitmapWidth() {
+        return bitmapWidth;
+    }
+
+    public void setBitmapWidth(int bitmapWidth) {
+        this.bitmapWidth = bitmapWidth;
+    }
+
+    public int getBitmapHeight() {
+        return bitmapHeight;
+    }
+
+    public void setBitmapHeight(int bitmapHeight) {
+        this.bitmapHeight = bitmapHeight;
+    }
+
+    public int getColQty() {
+        return colQty;
+    }
+
+    public void setColQty(int colQty) {
+        this.colQty = colQty;
+    }
+
+    public int getRowQty() {
+        return rowQty;
+    }
+
+    public void setRowQty(int rowQty) {
+        this.rowQty = rowQty;
+    }
 }
