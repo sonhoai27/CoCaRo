@@ -1,5 +1,6 @@
 package com.sonhoai.sonho.tiktak;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -29,6 +30,7 @@ public class ChessBoard {
     private Context context;
     private int bitmapWidth, bitmapHeight, colQty,rowQty;
     private List<Line> lines;
+    private Minimax minimax;
 
     //gọi nhiều lần
     private Bitmap playerA, playerB;
@@ -43,6 +45,7 @@ public class ChessBoard {
 
     //lam cac thao tac khoi tao, reset lại giá trị của các phương thức
     public void init(){
+        minimax = new Minimax();
         lines = new ArrayList<>();
         bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
         canvas = new Canvas(bitmap);
@@ -83,7 +86,6 @@ public class ChessBoard {
     }
 
     public boolean onTouch(View view, MotionEvent motionEvent){
-
         int cellWidth = view.getWidth()/colQty;
         int cellHeight = view.getHeight()/rowQty;
 
@@ -95,6 +97,21 @@ public class ChessBoard {
             return true;//co nguoi di roi
         }
         board[rowIndex][colIndex] = player;//gán nước đi là người chơi nào
+
+        int count = getCurrentDept();
+        //cho mình 1 nước đi, nghĩa là mọi đến minimax
+        //duyệt mảng 2 chiều board nếu mà board khác -1 thì có bước đi
+        Record record = minimax.minimaxRecode(this,1,count,9);//nước đi
+        //có nước đi, đặt nước đi
+        //tiến trình
+        final int currentDetp = rowQty*colQty - count;
+        makeMove(record.getMove());
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
         int padding = 50;
         if(player == 0){
             canvas.drawBitmap(
@@ -118,6 +135,9 @@ public class ChessBoard {
         return true;
     }
 
+    public void onDrawBoard(){
+
+    }
     //ktra coi có hết game chưa
     public boolean isGameOver(){
         if (checkWin(0) || checkWin(1)) return true;
@@ -149,12 +169,14 @@ public class ChessBoard {
         return moves;
     }
 
+    //ghi nhận nước đi.gán nước đi đó là player nào.
     public void makeMove(Move move) {
         board[move.getRowIndex()][move.getColIndex()] = player;
         player = (player + 1) % 2;//hoan đổi người chơi, 1 qua 0, hoặc 0 qua 1
 
     }
 
+    //dánh giá bàn cở, trở về điểm tương ứng v player, boss thắng là 1, boss thua là -1, hòa là 0
     public int evaluate(int player) {
         if (checkWin(player))
             return 1;
@@ -182,6 +204,15 @@ public class ChessBoard {
 //bitmap dai dien cho một bức ảnh
 
 
+    public int[][] getNewBoard(){
+        int[][] newBoard = new int[rowQty][colQty];
+        for (int i = 0; i < rowQty; i++) {
+            for (int j = 0; i < colQty; j++) {
+                newBoard[i][j] = board[i][j];
+            }
+        }
+        return newBoard;
+    }
     public int getPlayer() {
         return player;
     }
@@ -228,5 +259,23 @@ public class ChessBoard {
 
     public void setRowQty(int rowQty) {
         this.rowQty = rowQty;
+    }
+
+    public int[][] getBoard() {
+        return board;
+    }
+
+    public void setBoard(int[][] board) {
+        this.board = board;
+    }
+
+    public int getCurrentDept(){
+        int count = 0;
+        for (int i = 0; i < rowQty; i++) {
+            for (int j = 0; i < colQty; j++) {
+                if (board[i][j] != -1) count++;
+            }
+        }
+        return count;
     }
 }
