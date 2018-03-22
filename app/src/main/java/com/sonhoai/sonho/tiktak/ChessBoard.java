@@ -85,33 +85,38 @@ public class ChessBoard {
         return bitmap;
     }
 
-    public boolean onTouch(View view, MotionEvent motionEvent){
+    public boolean onTouch(final View view, MotionEvent motionEvent){
         int cellWidth = view.getWidth()/colQty;
         int cellHeight = view.getHeight()/rowQty;
-
         int colIndex = (int) (motionEvent.getX()/cellWidth);
         int rowIndex = (int) (motionEvent.getY()/cellHeight);
-        Log.i("Event", colIndex+"-"+rowIndex);
-
         if(board[rowIndex][colIndex] != -1){
             return true;//co nguoi di roi
         }
-        board[rowIndex][colIndex] = player;//gán nước đi là người chơi nào
-
         int count = getCurrentDept();
-        //cho mình 1 nước đi, nghĩa là mọi đến minimax
-        //duyệt mảng 2 chiều board nếu mà board khác -1 thì có bước đi
-        Record record = minimax.minimaxRecode(this,1,count,9);//nước đi
-        //có nước đi, đặt nước đi
-        //tiến trình
         final int currentDetp = rowQty*colQty - count;
-        makeMove(record.getMove());
         ((Activity)context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
+                //cho mình 1 nước đi, nghĩa là mọi đến minimax
+                //duyệt mảng 2 chiều board nếu mà board khác -1 thì có bước đi
+                Record record = minimax.minimaxRecode(ChessBoard.this,1,currentDetp,9);//nước đi
+                //có nước đi, đặt nước đi
+                //tiến trình
+                makeMove(record.getMove());
+                onDrawBoard(record.getMove().getColIndex(),record.getMove().getRowIndex(), view);
             }
         });
+        view.invalidate();
+//        //cap nhat lai ban cờ
+//        player = (player == 0 ? 1 : 0); // (player+1)%2
+        return true;
+    }
+
+    public void onDrawBoard(int colIndex, int rowIndex, View view){
+        int cellWidth = view.getWidth()/colQty;
+        int cellHeight = view.getHeight()/rowQty;
+        board[rowIndex][colIndex] = player;//gán nước đi là người chơi nào
         int padding = 50;
         if(player == 0){
             canvas.drawBitmap(
@@ -128,15 +133,6 @@ public class ChessBoard {
                     paint);
             player = 0;
         }
-
-        view.invalidate();
-//        //cap nhat lai ban cờ
-//        player = (player == 0 ? 1 : 0); // (player+1)%2
-        return true;
-    }
-
-    public void onDrawBoard(){
-
     }
     //ktra coi có hết game chưa
     public boolean isGameOver(){
@@ -144,7 +140,7 @@ public class ChessBoard {
 
         int count = 0;
         for (int i = 0; i < rowQty; i++) {
-            for (int j = 0; i < colQty; j++) {
+            for (int j = 0; j < colQty; j++) {
                 if (board[i][j] == -1) count++;
             }
         }
@@ -162,7 +158,7 @@ public class ChessBoard {
         //tạo mới 1 danh sách, duyệt qua từng vị trí, nếu -1 còn vị trí đi
         List<Move> moves = new ArrayList<>();
         for (int i = 0; i < rowQty; i++) {
-            for (int j = 0; i < colQty; j++) {
+            for (int j = 0; j < colQty; j++) {
                 if (board[i][j] == -1) moves.add(new Move(i, j));//có thể đi dc
             }
         }
@@ -207,7 +203,7 @@ public class ChessBoard {
     public int[][] getNewBoard(){
         int[][] newBoard = new int[rowQty][colQty];
         for (int i = 0; i < rowQty; i++) {
-            for (int j = 0; i < colQty; j++) {
+            for (int j = 0; j < colQty; j++) {
                 newBoard[i][j] = board[i][j];
             }
         }
@@ -272,7 +268,7 @@ public class ChessBoard {
     public int getCurrentDept(){
         int count = 0;
         for (int i = 0; i < rowQty; i++) {
-            for (int j = 0; i < colQty; j++) {
+            for (int j = 0; j < colQty; j++) {
                 if (board[i][j] != -1) count++;
             }
         }

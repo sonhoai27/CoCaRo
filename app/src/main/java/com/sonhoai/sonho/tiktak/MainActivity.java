@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         img = findViewById(R.id.img);
 
-        chessBoard = new ChessBoard(getApplicationContext(), 600,600,3,3);
+        chessBoard = new ChessBoard(MainActivity.this, 600,600,3,3);
         chessBoard.init();
 //        Line line = new Line(300,300, 3,3);
 //        ChessBoard chessBoard = new ChessBoard(line);
