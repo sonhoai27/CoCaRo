@@ -5,10 +5,11 @@ package com.sonhoai.sonho.tiktak;
  */
 
 public class Minimax {
-    Move bestMove=null;//
-    int bestScore;//giá trị điểm tốt nhất
+
 
     public Record minimaxRecode(ChessBoard chessBoard, int player,int currentDept, int maxDept) {
+        Move bestMove=null;//
+        int bestScore;//giá trị điểm tốt nhất
         if(chessBoard.isGameOver() || currentDept==maxDept) {
             //tham số đầu, hết bàn cờ thì move sẽ none//dánh giá trên cơ cở của con boss//player này luôn bằng =1//dại diện cho con boss
             return new Record(null,chessBoard.evaluate(player));
@@ -16,7 +17,7 @@ public class Minimax {
         if(chessBoard.getPlayer()==player){
             bestScore=Integer.MIN_VALUE;
         }else {
-            bestScore=Integer.MIN_VALUE;
+            bestScore=Integer.MAX_VALUE;
         }
         //duyệt qua tất cả các nước đi có thể đi trên bàn cờ
         for(Move move:chessBoard.getMove()){
@@ -29,13 +30,18 @@ public class Minimax {
             Record record = minimaxRecode(newChess,player,currentDept++,maxDept);
             //currentscore nằm trong record
             //lượt boss
-            if(record.getScore() > bestScore){
+            if(chessBoard.getPlayer()==player){
+            if(record.getScore() > bestScore) {
                 bestScore = record.getScore();
                 bestMove = move;
                 //lượt người chơi
-            }else if(record.getScore() < bestScore){
-                bestScore = record.getScore();
-                bestMove = move;
+
+            }
+            }else{
+                if(record.getScore() < bestScore){
+                    bestScore = record.getScore();
+                    bestMove = move;
+                }
             }
         }
         //gọi dệ quy

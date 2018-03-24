@@ -93,20 +93,30 @@ public class ChessBoard {
         if(board[rowIndex][colIndex] != -1){
             return true;//co nguoi di roi
         }
-        int count = getCurrentDept();
-        final int currentDetp = rowQty*colQty - count;
-        ((Activity)context).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //cho mình 1 nước đi, nghĩa là mọi đến minimax
-                //duyệt mảng 2 chiều board nếu mà board khác -1 thì có bước đi
-                Record record = minimax.minimaxRecode(ChessBoard.this,1,currentDetp,9);//nước đi
-                //có nước đi, đặt nước đi
-                //tiến trình
-                makeMove(record.getMove());
-                onDrawBoard(record.getMove().getColIndex(),record.getMove().getRowIndex(), view);
-            }
-        });
+
+
+        board[rowIndex][colIndex] = player;
+        onDrawBoard(colIndex,rowIndex,view);
+        player = (player+1)%2;
+        if(isGameOver()){
+            init();
+            Log.i("GAME_STATUS", "over");
+        }else{
+            int count = getCurrentDept();
+            final int currentDetp = rowQty*colQty - count;
+            ((MainActivity)context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //cho mình 1 nước đi, nghĩa là mọi đến minimax
+                    //duyệt mảng 2 chiều board nếu mà board khác -1 thì có bước đi
+                    Record record = minimax.minimaxRecode(ChessBoard.this,1,currentDetp,9);//nước đi
+                    //có nước đi, đặt nước đi
+                    //tiến trình
+                    makeMove(record.getMove());
+                    onDrawBoard(record.getMove().getColIndex(),record.getMove().getRowIndex(), view);
+                }
+            });
+        }
         view.invalidate();
 //        //cap nhat lai ban cờ
 //        player = (player == 0 ? 1 : 0); // (player+1)%2
@@ -150,8 +160,33 @@ public class ChessBoard {
         //chưa thắng hoặc còn vị trí để đi=>game chưa kết thúc
         return false;
     }
-    private boolean checkWin(int i) {
-        return true;
+    private boolean checkWin(int player) {
+        if(board[0][0]==player && board[0][1]==player && board[0][2]==player)
+            return true;
+
+        if(board[1][0]==player && board[1][1]==player && board[1][2]==player)
+            return true;
+
+        if(board[2][0]==player && board[2][1]==player && board[2][2]==player)
+            return true;
+
+        if(board[0][0]==player && board[1][0]==player && board[2][0]==player)
+            return true;
+
+        if(board[0][1]==player && board[1][1]==player && board[2][1]==player)
+            return true;
+
+        if(board[0][2]==player && board[1][2]==player && board[2][2]==player)
+            return true;
+
+        if(board[0][0]==player && board[1][1]==player && board[2][2]==player)
+            return true;
+
+        if(board[0][2]==player && board[1][1]==player && board[2][0]==player)
+            return true;
+        return false;
+
+
     }
     //duyệt qua từng bước đi, để có một bàn cờ mới
     public List<Move> getMove() {
@@ -269,7 +304,7 @@ public class ChessBoard {
         int count = 0;
         for (int i = 0; i < rowQty; i++) {
             for (int j = 0; j < colQty; j++) {
-                if (board[i][j] != -1) count++;
+                if (board[i][j] == -1) count++;
             }
         }
         return count;
