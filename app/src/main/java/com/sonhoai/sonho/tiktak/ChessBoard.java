@@ -12,7 +12,6 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,10 @@ public class ChessBoard {
     private Context context;
     private int bitmapWidth, bitmapHeight, colQty,rowQty;
     private List<Line> lines;
-    private Minimax minimax;
+    private Negamax negamax;
+    private int need = 3;//so luong win
+    private Move tempMove;
+    private boolean isOver = false;
 
     //gọi nhiều lần
     private Bitmap playerA, playerB;
@@ -45,7 +47,7 @@ public class ChessBoard {
 
     //lam cac thao tac khoi tao, reset lại giá trị của các phương thức
     public void init(){
-        minimax = new Minimax();
+        negamax = new Negamax();
         lines = new ArrayList<>();
         bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888);
         canvas = new Canvas(bitmap);
@@ -90,6 +92,7 @@ public class ChessBoard {
         int cellHeight = view.getHeight()/rowQty;
         int colIndex = (int) (motionEvent.getX()/cellWidth);
         int rowIndex = (int) (motionEvent.getY()/cellHeight);
+        Log.i("DOO", colIndex+"-"+rowIndex);
         if(board[rowIndex][colIndex] != -1){
             return true;//co nguoi di roi
         }
@@ -97,26 +100,49 @@ public class ChessBoard {
 
         board[rowIndex][colIndex] = player;
         onDrawBoard(colIndex,rowIndex,view);
+        view.invalidate();
         player = (player+1)%2;
-        if(isGameOver()){
-            init();
-            Log.i("GAME_STATUS", "over");
-        }else{
-            int count = getCurrentDept();
-            final int currentDetp = rowQty*colQty - count;
-            ((MainActivity)context).runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //cho mình 1 nước đi, nghĩa là mọi đến minimax
-                    //duyệt mảng 2 chiều board nếu mà board khác -1 thì có bước đi
-                    Record record = minimax.minimaxRecode(ChessBoard.this,1,currentDetp,9);//nước đi
-                    //có nước đi, đặt nước đi
-                    //tiến trình
-                    makeMove(record.getMove());
-                    onDrawBoard(record.getMove().getColIndex(),record.getMove().getRowIndex(), view);
-                }
-            });
-        }
+//        if(checkWindiagonalLeftBottom(colIndex,rowIndex)
+//                || checkWindiagonalRightBottom(colIndex,rowIndex)
+//                || checkWinHorizontal(rowIndex)
+//                || checkWinVerical(colIndex)){
+//            init();
+//            Log.i("GAME_STATUS", "over");
+//        }else{
+//            int count = getCurrentDept();
+//            final int currentDetp = rowQty*colQty - count;
+//            ((MainActivity)context).runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    //cho mình 1 nước đi, nghĩa là mọi đến minimax
+//                    //duyệt mảng 2 chiều board nếu mà board khác -1 thì có bước đi
+//                    Record record = negamax.negamax(ChessBoard.this,1,currentDetp,rowQty*colQty,Integer.MAX_VALUE,-Integer.MIN_VALUE);//nước đi
+//                    //có nước đi, đặt nước đi
+//                    //tiến trình
+//                    board[record.getMove().getRowIndex()][record.getMove().getColIndex()] = player;
+//
+//                    onDrawBoard(record.getMove().getColIndex(),record.getMove().getRowIndex(), view);
+//                    player = (player+1)%2;
+//                }
+//            });
+//        }
+        int count = getCurrentDept();
+        final int currentDetp = rowQty*colQty - count;
+        tempMove = new Move(rowIndex,colIndex);
+        ((MainActivity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //cho mình 1 nước đi, nghĩa là mọi đến minimax
+                //duyệt mảng 2 chiều board nếu mà board khác -1 thì có bước đi
+                Record record = negamax.negamax(ChessBoard.this,1,currentDetp,rowQty*colQty,Integer.MAX_VALUE,-Integer.MIN_VALUE);//nước đi
+                //có nước đi, đặt nước đi
+                //tiến trình
+                board[record.getMove().getRowIndex()][record.getMove().getColIndex()] = player;
+
+                onDrawBoard(record.getMove().getColIndex(),record.getMove().getRowIndex(), view);
+                player = (player+1)%2;
+            }
+        });
         view.invalidate();
 //        //cap nhat lai ban cờ
 //        player = (player == 0 ? 1 : 0); // (player+1)%2
@@ -134,19 +160,23 @@ public class ChessBoard {
                     new Rect(0,0,playerA.getWidth(), playerA.getHeight()),
                     new Rect(colIndex*cellWidth+padding,rowIndex*cellHeight+padding,(colIndex+1)*cellWidth -padding, (rowIndex+1)*cellHeight -padding),
                     paint);
-            player = 1;
+           // player = 1;
         }else {
             canvas.drawBitmap(
                     playerB,
                     new Rect(0,0,playerB.getWidth(), playerB.getHeight()),
                     new Rect(colIndex*cellWidth,rowIndex*cellHeight,(colIndex+1)*cellWidth, (rowIndex+1)*cellHeight),
                     paint);
-            player = 0;
+          //  player = 0;
         }
     }
     //ktra coi có hết game chưa
     public boolean isGameOver(){
-        if (checkWin(0) || checkWin(1)) return true;
+        if (checkWindiagonalLeftBottom(tempMove.getColIndex(),tempMove.getRowIndex())
+                || checkWindiagonalRightBottom(tempMove.getColIndex(),tempMove.getRowIndex())
+                || checkWinHorizontal(tempMove.getRowIndex())
+                || checkWinVerical(tempMove.getColIndex())
+        ) return true;
 
         int count = 0;
         for (int i = 0; i < rowQty; i++) {
@@ -188,6 +218,9 @@ public class ChessBoard {
 
 
     }
+    private void checkDiagonalFromTopRight (int colQty, int rowQty) {
+
+    }
     //duyệt qua từng bước đi, để có một bàn cờ mới
     public List<Move> getMove() {
         //tạo mới 1 danh sách, duyệt qua từng vị trí, nếu -1 còn vị trí đi
@@ -202,13 +235,14 @@ public class ChessBoard {
 
     //ghi nhận nước đi.gán nước đi đó là player nào.
     public void makeMove(Move move) {
+        tempMove = move;
         board[move.getRowIndex()][move.getColIndex()] = player;
         player = (player + 1) % 2;//hoan đổi người chơi, 1 qua 0, hoặc 0 qua 1
 
     }
 
     //dánh giá bàn cở, trở về điểm tương ứng v player, boss thắng là 1, boss thua là -1, hòa là 0
-    public int evaluate(int player) {
+    public int evaluate() {
         if (checkWin(player))
             return 1;
         if (checkWin((player + 1) % 2))
@@ -308,5 +342,84 @@ public class ChessBoard {
             }
         }
         return count;
+    }
+
+
+    public boolean checkWinHorizontal(int row){
+        int dem = 0;
+        for (int i = 1; i < rowQty; i++) {
+            if (board[row][i] != board[row][i-1]) {
+                dem = 0;
+            }else if(board[row][i] != -1){
+                dem++;
+            }
+            if (dem == need) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    private boolean checkWinVerical(int col){
+        int dem = 0;
+        for (int i = 1; i < rowQty; i++) {
+            if (board[i][col] != board[i-1][col]) {
+                dem = 0;
+            }else if(board[i][col] != -1){
+                dem++;
+            }
+            if (dem == need) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    private boolean checkWindiagonalLeftBottom(int x, int y){
+        int a = 0, b = 0,count  = 0;
+        if(x > y){
+            a = x - y;
+            b = y - y;
+        }
+        if(x < y){
+            a = y -x;
+            b = y - y;
+        }
+        for (int i = a + 1; i < rowQty; i++) {
+            if(a < rowQty && b < rowQty){
+                if(board[i][b+1] != board[a][b]){
+                    count = 0;
+                }else if(board[i][b+1] != -1){
+                    count++;
+                }
+                if(count == need) return true;
+            }
+            a = a+1;
+            b = b+1;
+        }
+        return false;
+    }
+    private boolean checkWindiagonalRightBottom(int x, int y){
+        int a = 0, b = 0, count  = 0;
+        if(x > y){
+            a = x + y;b = 0;
+        }else {
+            a = colQty -1;
+            b = x +y - (colQty-1);
+        }
+        for (int i = 0; i < rowQty -1; i++) {
+            if(a > 0 && b < colQty  && b >0){
+                if(board[a - 1][b+1] != board[a][b]){
+                    count = 0;
+                }else if(board[a-1][b+1] != -1){
+                    count++;
+                }
+
+                if(count == need) return true;
+            }
+            a = a-1;
+            b = b+1;
+        }
+        return false;
     }
 }

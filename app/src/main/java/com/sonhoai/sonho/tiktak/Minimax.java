@@ -12,7 +12,7 @@ public class Minimax {
         int bestScore;//giá trị điểm tốt nhất
         if(chessBoard.isGameOver() || currentDept==maxDept) {
             //tham số đầu, hết bàn cờ thì move sẽ none//dánh giá trên cơ cở của con boss//player này luôn bằng =1//dại diện cho con boss
-            return new Record(null,chessBoard.evaluate(player));
+            return new Record(null,chessBoard.evaluate());
         }
         if(chessBoard.getPlayer()==player){
             bestScore=Integer.MIN_VALUE;
