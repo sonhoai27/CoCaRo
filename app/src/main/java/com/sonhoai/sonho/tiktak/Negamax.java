@@ -34,10 +34,12 @@ public class Negamax {
             if(currentScore > bestScore){
                 bestScore = currentScore;
                 bestMove = move;
-                if(bestScore >= beta || currentScore <= alpha){
+                if(bestScore >= beta){
                     new Record(bestMove,bestScore);
                 }
+
             }
+            alpha = Math.max(alpha, currentScore);
         }
         return new Record(bestMove,bestScore);
     }
