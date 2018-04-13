@@ -14,7 +14,6 @@ import java.net.Socket;
 public class Client {
     private Socket socket;
     private int role;//xac dinh thang a hay b
-    private Threads thread;
 
     public Socket getSocket() {
         return socket;
@@ -30,14 +29,6 @@ public class Client {
 
     public void setRole(int role) {
         this.role = role;
-    }
-
-    public Threads getThread() {
-        return thread;
-    }
-
-    public void setThread(Threads thread) {
-        this.thread = thread;
     }
 
     public Client(Socket socket) {

@@ -7,11 +7,12 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Client extends AsyncTask<Void, Void, String> {
+public class Client extends Thread {
     private String address;
     private int port;
     public static Socket socket;
     public CallBack callBack;
+
 
     public Client(String address, int port){
         this.port = port;
@@ -26,24 +27,20 @@ public class Client extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected String doInBackground(Void... voids) {
+    public void run() {
+        super.run();
         connect();
+        String serverMessage;
+        DataInputStream inputStream = null;
         while (true){
-            DataInputStream inputStream = null;
             try {
                 inputStream = new DataInputStream(socket.getInputStream());
-                String serverMessage = inputStream.readUTF();
+                serverMessage = inputStream.readUTF();
                 callBack.onTaskCompleted(serverMessage);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    protected void onPostExecute(String s) {
-        super.onPostExecute(s);
-        callBack.onTaskCompleted(s);
     }
 
     public static Socket getSocket() {

@@ -16,63 +16,47 @@ import java.util.List;
  * @author sonho
  */
 public class Server {
+
     static final int SocketServerPORT = 8081;
     String msg = "";
-    private List<Client> listClient;
-   
+    private List<Socket> listClient;
+
     ServerSocket serverSocket;
-    
-    public Server(){
+
+    public Server() {
         System.out.println(ServerSocketHelper.getIpAddress());
         listClient = new ArrayList<>();
         ServerThread serverThread = new ServerThread();
         serverThread.start();
     }
-    
-    
+
     public static void main(String[] args) {
         Server server = new Server();
     }
+
     private class ServerThread extends Thread {
 
         public ServerThread() {
-            if (listClient.size() > 1) {
-                int numberMatches = listClient.size() / 2;
-
-                for (int i = 0; i < numberMatches; i++) {
-                    Client playerA = listClient.get(i);
-                    playerA.setRole(0);
-
-                    Client playerB = listClient.get(i + numberMatches);
-                    playerB.setRole(1);
-                    Threads threads = new Threads(playerA, playerB);
-                    System.out.println("i = " + i);
-                    threads.start();
-                }
-                
-                System.out.println(listClient);
-            }
         }
 
         @Override
         public void run() {
-            Socket socket = null;
-
+         
             try {
                 serverSocket = new ServerSocket(SocketServerPORT);
                 System.out.println("I'm waiting here: "
-                    + serverSocket.getLocalPort());
-                    System.out.println("CTRL + C to quit");
+                        + serverSocket.getLocalPort());
+                System.out.println("CTRL + C to quit");
 
-                while (true) {
-                    socket = serverSocket.accept();
-                    System.out.println(socket.getInetAddress());
-                    Client client = new Client(socket);
-                    listClient.add(client);
-                }
+                Socket socket = serverSocket.accept();
+               
+                Socket socket2 = serverSocket.accept();
+                System.out.println(socket2.getInetAddress());
+                listClient.add(socket2);
             } catch (IOException e) {
                 e.printStackTrace();
-            } 
+            }
         }
     }
+
 }

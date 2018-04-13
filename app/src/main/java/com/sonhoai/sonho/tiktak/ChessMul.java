@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -109,6 +110,22 @@ public class ChessMul {
             return true;
         }
         return true;
+    }
+
+    public Move onTouchMove(final View view, MotionEvent motionEvent) {
+        int cellWidth = view.getWidth()/colQty;
+        int cellHeight = view.getHeight()/rowQty;
+        int colIndex = (int) (motionEvent.getX()/cellWidth);
+        int rowIndex = (int) (motionEvent.getY()/cellHeight);
+
+        if (board[rowIndex][colIndex] != -1) {
+            return null;
+        }
+        onDrawBoard(colIndex,rowIndex,view);
+        makeMove(new Move(rowIndex, colIndex));
+        view.invalidate();
+        Log.i("HAHAHA", String.valueOf(colIndex));
+        return new Move(rowIndex, colIndex);
     }
     public void onDrawBoard(int colIndex, int rowIndex, View view){
         int cellWidth = view.getWidth()/colQty;
