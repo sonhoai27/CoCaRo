@@ -22,7 +22,7 @@ public class ChessMul {
     private Context context;
     private int bitmapWidth, bitmapHeight, colQty,rowQty;
     private List<Line> lines;
-    private int need = 3;//so luong win
+    private int need = 5;//so luong win
     private Move tempMove;
     private int winner = -1;
 
@@ -73,16 +73,18 @@ public class ChessMul {
                     paint
             );
         }
-        playerA = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_player_a);
-        playerB = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_player_b);
+        playerA = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_player_b);
+        playerB = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_player_a);
 
         return bitmap;
     }
 
 
     public boolean onTouch(final View view, MotionEvent motionEvent){
-        final int colIndex = (int) (motionEvent.getX() / (view.getWidth() / colQty));
-        final int rowIndex = (int) (motionEvent.getY() / (view.getHeight() / rowQty));
+        int cellWidth = view.getWidth()/colQty;
+        int cellHeight = view.getHeight()/rowQty;
+        int colIndex = (int) (motionEvent.getX()/cellWidth);
+        int rowIndex = (int) (motionEvent.getY()/cellHeight);
 
         if (winner == 0 || winner == 1) {
             return true;
@@ -111,21 +113,20 @@ public class ChessMul {
     public void onDrawBoard(int colIndex, int rowIndex, View view){
         int cellWidth = view.getWidth()/colQty;
         int cellHeight = view.getHeight()/rowQty;
-        int padding = 50;
+        board[rowIndex][colIndex] = player;//gán nước đi là người chơi nào
+        int padding = 10;
         if(player == 0){
             canvas.drawBitmap(
                     playerA,
                     new Rect(0,0,playerA.getWidth(), playerA.getHeight()),
                     new Rect(colIndex*cellWidth+padding,rowIndex*cellHeight+padding,(colIndex+1)*cellWidth -padding, (rowIndex+1)*cellHeight -padding),
                     paint);
-            // player = 1;
         }else {
             canvas.drawBitmap(
                     playerB,
                     new Rect(0,0,playerB.getWidth(), playerB.getHeight()),
                     new Rect(colIndex*cellWidth,rowIndex*cellHeight,(colIndex+1)*cellWidth, (rowIndex+1)*cellHeight),
                     paint);
-            //  player = 0;
         }
     }
     //ktra coi có hết game chưa
@@ -201,37 +202,6 @@ public class ChessMul {
 
     }
 
-    //dánh giá bàn cở, trở về điểm tương ứng v player, boss thắng là 1, boss thua là -1, hòa là 0
-    public int evaluate() {
-        if(winner == -1){
-            return 0;
-        }else if(winner == player){
-            return 1;
-        }else {
-            return -1;
-        }
-    }
-    public int[][] getNewBoard(){
-        int[][] newBoard = new int[rowQty][colQty];
-        for (int i = 0; i < rowQty; i++) {
-            for (int j = 0; j < colQty; j++) {
-                newBoard[i][j] = board[i][j];
-            }
-        }
-        return newBoard;
-    }
-
-    public int getCurrentDept(){
-        int count = 0;
-        for (int i = 0; i < rowQty; i++) {
-            for (int j = 0; j < colQty; j++) {
-                if (board[i][j] == -1) count++;
-            }
-        }
-        return count;
-    }
-
-
     public boolean checkWinHorizontal(int row){
         int dem = 0;
         for (int i = 1; i < rowQty; i++) {
@@ -265,47 +235,24 @@ public class ChessMul {
         return false;
     }
     private boolean checkWindiagonalLeftBottom(int row, int col){
-//        int a = 0, b = 0,count  = 0, i = 1;
-//        if(row > col){
-//            a = row - col;
-//            b = 0;
-//        }else {
-//            a = 0;
-//            b = col - row;
-//        }
-//        while (a +i < col && b+i < rowQty){
-//            if(a +i < rowQty && b+i < rowQty){
-//                if(board[a+i][b+i] != board[a][b]){
-//                    count = 0;
-//                }else if(board[a+i][b+i] != -1){
-//                    count++;
-//                }
-//                if(count == need) {
-//                    winner = board[a+i][i+1];
-//                    return true;
-//                }
-//            }
-//            i++;
-//        }
-//        return false;
-        int rowStart, colStart;
+        int a, b;
         int i = 0;
         int count = 0;
 
         if (row > col) {
-            rowStart = row - col;
-            colStart = 0;
+            a = row - col;
+            b = 0;
         } else {
-            rowStart = 0;
-            colStart = col - row;
+            a = 0;
+            b = col - row;
         }
 
-        while (rowStart + i + 1 < colQty && colStart + i + 1 < rowQty) {
-            if (board[rowStart + i][colStart + i] == board[rowStart + i + 1][colStart + i + 1] && board[rowStart + i][colStart + i] != -1) {
+        while (a + i + 1 < colQty && b + i + 1 < rowQty) {
+            if (board[a + i][b + i] == board[a + i + 1][b + i + 1] && board[a + i][b + i] != -1) {
                 count++;
 
                 if (count == need) {
-                    winner = board[rowStart + i][colStart + i];
+                    winner = board[a + i][b + i];
                     return true;
                 }
             } else {
@@ -317,24 +264,24 @@ public class ChessMul {
         return false;
     }
     private boolean checkWindiagonalRightBottom(int row, int col){
-        int rowStart, colStart;
+        int a, b;
         int i = 0;
         int count = 0;
 
         if (row + col < colQty - 1) {
-            colStart = row + col;
-            rowStart = 0;
+            b = row + col;
+            a = 0;
         } else {
-            colStart = colQty - 1;
-            rowStart = col + row - (colQty - 1);
+            b = colQty - 1;
+            a = col + row - (colQty - 1);
         }
 
-        while (colStart - i - 1 >= 0 && rowStart + i + 1 < colQty) {
-            if (board[rowStart + i][colStart - i] == board[rowStart + i + 1][colStart - i - 1] && board[rowStart + i][colStart - i] != -1) {
+        while (b - i - 1 >= 0 && a + i + 1 < colQty) {
+            if (board[a + i][b - i] == board[a + i + 1][b - i - 1] && board[a + i][b - i] != -1) {
                 count++;
 
                 if (count == need) {
-                    winner = board[rowStart + i][colStart - i];
+                    winner = board[a + i][b - i];
                     return true;
                 }
             } else {

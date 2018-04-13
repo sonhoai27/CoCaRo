@@ -2,9 +2,9 @@ package com.sonhoai.sonho.tiktak;
 
 import android.os.AsyncTask;
 
-import java.io.ByteArrayOutputStream;
+import com.sonhoai.sonho.tiktak.ulti.CallBack;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 
 public class TwoPlayers extends AsyncTask<Void, Void, String> {
