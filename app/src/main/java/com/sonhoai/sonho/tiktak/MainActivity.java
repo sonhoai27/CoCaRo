@@ -19,13 +19,16 @@ public class MainActivity extends AppCompatActivity {
 
         chessBoard = new ChessBoard(MainActivity.this, 600,600,3,3);
         chessBoard.init();
-//        Line line = new Line(300,300, 3,3);
-//        ChessBoard chessBoard = new ChessBoard(line);
         img.setImageBitmap(chessBoard.drawBoard());
         img.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-               return chessBoard.onTouch(view, motionEvent);
+               if(motionEvent.getAction() == MotionEvent.ACTION_DOWN){
+                   return chessBoard.onTouch(view, motionEvent);
+               }else if(motionEvent.getAction() == MotionEvent.ACTION_UP){
+                   return chessBoard.onTouchBot(view, motionEvent);
+               }
+               return true;
             }
         });
     }
