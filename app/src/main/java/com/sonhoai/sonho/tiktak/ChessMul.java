@@ -124,7 +124,6 @@ public class ChessMul {
         onDrawBoard(colIndex,rowIndex,view);
         makeMove(new Move(rowIndex, colIndex));
         view.invalidate();
-        Log.i("HAHAHA", String.valueOf(colIndex));
         return new Move(rowIndex, colIndex);
     }
     public void onDrawBoard(int colIndex, int rowIndex, View view){
@@ -145,6 +144,12 @@ public class ChessMul {
                     new Rect(colIndex*cellWidth,rowIndex*cellHeight,(colIndex+1)*cellWidth, (rowIndex+1)*cellHeight),
                     paint);
         }
+    }
+
+    public void otherClientDraw(Move move, View view){
+        onDrawBoard(move.getColIndex(),move.getRowIndex(),view);
+        makeMove(move);
+        view.invalidate();
     }
     //ktra coi có hết game chưa
     public boolean isGameOver(){

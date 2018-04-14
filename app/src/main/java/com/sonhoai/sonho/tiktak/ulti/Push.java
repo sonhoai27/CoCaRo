@@ -27,7 +27,7 @@ public class Push extends Thread {
     public void run() {
         super.run();
         try {
-            String message = "" + this.move.getRowIndex() + this.move.getColIndex();
+            String message = "" + this.move.getRowIndex() +"-"+ this.move.getColIndex();
             this.dataOutputStream.writeUTF(message);
             this.dataOutputStream.flush();
         } catch (IOException e) {

@@ -30,7 +30,7 @@ public class Client extends Thread {
     public void run() {
         super.run();
         connect();
-        String serverMessage;
+        String serverMessage = null;
         DataInputStream inputStream = null;
         while (true){
             try {

@@ -45,7 +45,7 @@ public class MultiPlayer extends AppCompatActivity implements CallBack{
     }
 
     private void init(){
-        client = new Client("192.168.141.2", 8081);
+        client = new Client("192.168.43.127", 8081);
         client.start();
     }
     @Override
@@ -53,8 +53,35 @@ public class MultiPlayer extends AppCompatActivity implements CallBack{
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.i("AAAA", result);
-                Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+
+                String[] res = result.split("-");
+                String row, col, status,player;
+                status = res[0];
+                player = res[1];
+                row = res[2];
+                col = res[3];
+                Toast.makeText(getApplicationContext(), player, Toast.LENGTH_LONG).show();
+                switch (status){
+                    case "tao": {
+                        if(player.equals("b")){
+                            Toast.makeText(getApplicationContext(), "Bạn chơi thứ 2", Toast.LENGTH_LONG).show();
+                        }else {
+                            Toast.makeText(getApplicationContext(), "Bạn chơi lượt đầu", Toast.LENGTH_LONG).show();
+                        }
+                    };break;
+                    case "lam": {
+                        chessMul.otherClientDraw(new Move(Integer.parseInt(row),Integer.parseInt(col)), img2);
+                    };break;
+                    case "thang": {
+                        Toast.makeText(getApplicationContext(), "Ban thắng rồi", Toast.LENGTH_LONG).show();
+                    };break;
+                    case "thua": {
+                        Toast.makeText(getApplicationContext(), "Ban thua rồi", Toast.LENGTH_LONG).show();
+                    };break;
+                    case "hoa": {
+                        Toast.makeText(getApplicationContext(), "Ban hoà rồi", Toast.LENGTH_LONG).show();
+                    };break;
+                }
             }
         });
     }
