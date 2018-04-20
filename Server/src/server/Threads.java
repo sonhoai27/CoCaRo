@@ -1,56 +1,89 @@
-///*
-// * To change this license header, choose License Headers in Project Properties.
-// * To change this template file, choose Tools | Templates
-// * and open the template in the editor.
-// */
-//package server;
-//
-//import java.io.DataInput;
-//import java.io.DataInputStream;
-//import java.io.DataOutputStream;
-//import java.io.IOException;
-//import java.net.Socket;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
-//
-///**
-// *
-// * @author sonho
-// */
-//public class Threads extends Thread {
-//
-//    private Client player;
-//    private DataInputStream dataInputStream;
-//    private DataOutputStream dataOutputStream;
-//
-//    private String message;
-//
-//    public Threads(Client player) {
-//        this.player = player;
-//    }
-//
-//    @Override
-//    public void run() {
-//        super.run();
-//        try {
-//            while (true) {
-//                String n;
-//                n = (new DataInputStream(player.getSocket().getInputStream())).readUTF();
-//                System.out.println(n);
-//                for (int i = 0; i < Server.getListClient().size(); i++) {
-//                    dataInputStream = new DataInputStream(Server.getListClient().get(i).getSocket().getInputStream());
-//                    dataOutputStream = new DataOutputStream(Server.getListClient().get(i).getSocket().getOutputStream());
-//                    dataOutputStream.writeUTF(n);
-//                    dataOutputStream.flush();
-//                }
-//            }
-//          
-//        }catch(Exception e){
-//            
-//        }
-//    }
-//}
-////                if(!Server.getListClient().get(i).getSocket().equals(socket)){
-////                    dataOutputStream.writeUTF("Chao");
-////                    dataOutputStream.flush();
-////                }
+package server;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
+import dm.Client;
+import dm.Move;
+import dm.Player;
+import dm.STATUS;
+import dm.StatusEmit;
+import game.ChessBoard;
+
+public class Threads extends Thread {
+
+	private Client playerA;
+	private Client playerB;
+	private Client currentPlayer;
+	private DataInputStream dataInputStream = null;
+	private DataOutputStream dataOutputStream = null;
+	private ChessBoard chessBoard;
+	DB db;
+
+	public Threads(Client playerA, Client playerB) {
+		this.playerA = playerA;
+		this.playerB = playerB;
+		this.currentPlayer = playerA;
+		this.chessBoard = new ChessBoard();
+		db = DB.getInstance();
+	}
+
+	@Override
+	public void run() {
+		try {
+			this.sendMsgClient(playerA, STATUS.TAO, new Move(10, 10));
+			this.sendMsgClient(playerB, STATUS.TAO, new Move(10, 10));
+			Move move;
+			while (true) {
+				dataInputStream = new DataInputStream(currentPlayer.getSocket().getInputStream());
+				if (dataInputStream.available() > 0) {
+					move = new Move(dataInputStream.readUTF());
+					System.out.println("move = " + move.getRow() + move.getCol());
+					System.out.println(currentPlayer.getPlayer());
+					chessBoard.makeMove(move, currentPlayer.getPlayer());// di nuoc di cua
+					// nguoichoi, va doi nguoc lai
+
+					if (chessBoard.isOver()) {
+						db.insert(playerA, playerB, chessBoard, chessBoard.getWinner());
+						if (chessBoard.getWinner().equals(Player.PLAYERA)) {
+							this.sendMsgClient(playerA, STATUS.THANG, new Move(10, 10));
+							this.sendMsgClient(playerB, STATUS.THUA, move);
+						} else {
+							this.sendMsgClient(playerB, STATUS.THANG, new Move(10, 10));
+							this.sendMsgClient(playerA, STATUS.THUA, move);
+						}
+					} else {
+						if (currentPlayer.getPlayer().equals(Player.PLAYERA)) {
+							System.out.println("PlayerA move");
+							this.sendMsgClient(playerB, STATUS.CHOI, move);
+						} else {
+							System.out.println("PlayerB move");
+							this.sendMsgClient(playerA, STATUS.CHOI, move);
+						}
+					}
+				}
+
+				daoNguoc();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void sendMsgClient(Client player, String status, Move move) throws IOException {
+		dataOutputStream = new DataOutputStream(player.getSocket().getOutputStream());
+		StatusEmit message = new StatusEmit(player, status, move);
+		dataOutputStream.writeUTF(message.makeMessage());
+		dataOutputStream.flush();
+	}
+
+	private void daoNguoc() {
+		if (currentPlayer.equals(playerA)) {
+			currentPlayer = playerB;
+		} else {
+			currentPlayer = playerA;
+		}
+	}
+
+}
