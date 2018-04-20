@@ -1,32 +1,54 @@
 package com.sonhoai.sonho.tiktak;
 
-import android.util.Log;
+import com.sonhoai.sonho.tiktak.model.Move;
+import com.sonhoai.sonho.tiktak.model.Record;
 
 public class Negamax {
 
-    public Record negamax(ChessBoard chessBoard,int currentDept, int maxDept, int alpha, int beta){
+    public Record negamax(ChessBoard chessBoard, int currentDept, int maxDept, int alpha, int beta){
         Move bestMove = null;
         int bestScore;
 
-        if(chessBoard.isGameOver() || currentDept == maxDept){
-            Log.i("EVALUATE",String.valueOf(chessBoard.evaluate()));
+        if(chessBoard.isGameOver() || currentDept >= maxDept){
             return  new Record(null,chessBoard.evaluate());
         }
 
         bestScore = Integer.MIN_VALUE;
         for (Move move:chessBoard.getMove()){
-            ChessBoard newChess = new ChessBoard(chessBoard.getContext(),chessBoard.getBitmapWidth(),chessBoard.getBitmapHeight(),chessBoard.getColQty(),chessBoard.getRowQty());
+            ChessBoard newChess = new ChessBoard(
+                    chessBoard.getContext(),
+                    chessBoard.getBitmapWidth(),
+                    chessBoard.getBitmapHeight(),
+                    chessBoard.getColQty(),
+                    chessBoard.getRowQty()
+            );
 
             newChess.setBoard(chessBoard.getNewBoard());
             newChess.setPlayer(chessBoard.getPlayer());
-            newChess.makeMove(move);
 
+            int a, b;
+            if (alpha == Integer.MIN_VALUE) {
+                b = Integer.MAX_VALUE;
+            } else if (alpha == Integer.MAX_VALUE){
+                b = Integer.MIN_VALUE;
+            } else {
+                b = -alpha;
+            }
+
+            if (beta == Integer.MIN_VALUE) {
+                a = Integer.MAX_VALUE;
+            } else if (beta == Integer.MAX_VALUE) {
+                a = Integer.MIN_VALUE;
+            } else {
+                a = -beta;
+            }
+            newChess.makeMove(move);
             Record record = negamax(
                     newChess,
-                    currentDept++,
+                    currentDept + 1,
                     maxDept,
-                    -beta,
-                    -Math.max(alpha,bestScore)
+                    a,
+                    b
             );
 
             int currentScore = - record.getScore();//do dang ktra o thang khac,
@@ -34,12 +56,12 @@ public class Negamax {
             if(currentScore > bestScore){
                 bestScore = currentScore;
                 bestMove = move;
-                if(bestScore >= beta){
-                    new Record(bestMove,bestScore);
-                }
-
             }
             alpha = Math.max(alpha, currentScore);
+
+            if (alpha >= beta) {
+                return new Record(bestMove,bestScore);
+            }
         }
         return new Record(bestMove,bestScore);
     }

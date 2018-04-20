@@ -1,4 +1,4 @@
-package com.sonhoai.sonho.tiktak;
+package com.sonhoai.sonho.tiktak.model;
 
 /**
  * Created by sonho on 3/21/2018.

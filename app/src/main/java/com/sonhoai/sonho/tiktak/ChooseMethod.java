@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.sonhoai.sonho.tiktak.twoplayer.MultiPlayer;
+
 public class ChooseMethod extends AppCompatActivity {
 
     Button btn1,btn2;

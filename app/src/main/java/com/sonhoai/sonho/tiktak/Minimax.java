@@ -1,5 +1,8 @@
 package com.sonhoai.sonho.tiktak;
 
+import com.sonhoai.sonho.tiktak.model.Move;
+import com.sonhoai.sonho.tiktak.model.Record;
+
 /**
  * Created by sonho on 3/21/2018.
  */
@@ -7,7 +10,7 @@ package com.sonhoai.sonho.tiktak;
 public class Minimax {
 
 
-    public Record minimaxRecode(ChessBoard chessBoard, int player,int currentDept, int maxDept) {
+    public Record minimaxRecode(ChessBoard chessBoard, int player, int currentDept, int maxDept) {
         Move bestMove=null;//
         int bestScore;//giá trị điểm tốt nhất
         if(chessBoard.isGameOver() || currentDept==maxDept) {

@@ -1,6 +1,6 @@
 package com.sonhoai.sonho.tiktak.ulti;
 
-import com.sonhoai.sonho.tiktak.Move;
+import com.sonhoai.sonho.tiktak.model.Move;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

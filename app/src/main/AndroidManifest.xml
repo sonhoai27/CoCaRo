@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity" />
-        <activity android:name=".MultiPlayer">
+        <activity android:name=".twoplayer.MultiPlayer">
         </activity>
         <activity android:name=".ChooseMethod">
             <intent-filter>

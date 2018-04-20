@@ -1,4 +1,4 @@
-package com.sonhoai.sonho.tiktak;
+package com.sonhoai.sonho.tiktak.twoplayer;
 
 import android.os.AsyncTask;
 
