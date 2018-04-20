@@ -19,7 +19,6 @@ public class Push extends Thread {
 
         }
     }
-
     public void init(Move move) {
         this.move = move;
     }
